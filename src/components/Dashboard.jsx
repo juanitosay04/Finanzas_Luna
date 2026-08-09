@@ -29,7 +29,8 @@ export default function Dashboard({
   simulateBankSync, 
   exportData,
   onDeleteTransaction,
-  clearData
+  clearData,
+  syncStatus = 'loading'
 }) {
   const { income, expenses, transactions, investments } = financialData;
 
@@ -74,7 +75,17 @@ export default function Dashboard({
       {/* Header bar */}
       <div className="top-header">
         <div className="header-title-area">
-          <h1>Diagnóstico Financiero</h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <h1>Diagnóstico Financiero</h1>
+            {syncStatus && (
+              <span className={`sync-badge ${syncStatus}`}>
+                {syncStatus === 'synced' && "● Nube Conectada"}
+                {syncStatus === 'local' && "▲ Modo Local"}
+                {syncStatus === 'error' && "✖ Error Enlace"}
+                {syncStatus === 'loading' && "● Conectando..."}
+              </span>
+            )}
+          </div>
           <p>Signos vitales de tu salud patrimonial, estadísticas de juego y fichajes.</p>
         </div>
         <div className="header-actions">
