@@ -11,7 +11,7 @@ export default function App() {
   const localStorageKey = 'finances_luna_data';
 
   // Initial State tailored for the nurse, soccer & vallenato fan
-  const [financialData, setFinancialData] = useState(() => {
+  const [financialData, setRawFinancialData] = useState(() => {
     const saved = localStorage.getItem(localStorageKey);
     if (saved) {
       try {
@@ -52,9 +52,21 @@ export default function App() {
         { id: 3, description: 'Tarjeta Bancolombia (Camiseta Selección)', amount: 500000, category: 'Tarjetas de Crédito', type: 'Tarjeta de Crédito', dueDate: 'Día 16', paid: false },
         { id: 4, description: 'Crédito de Moto Yamaha FZ', amount: 750000, category: 'Créditos', type: 'Crédito Vehicular', dueDate: 'Día 20', paid: false },
         { id: 5, description: 'Servicios Públicos (Luz/Internet)', amount: 350000, category: 'Servicios', type: 'Gasto Fijo', dueDate: 'Día 25', paid: false }
-      ]
+      ],
+      updatedAt: 1
     };
   });
+
+  const setFinancialData = (updater) => {
+    setRawFinancialData((prev) => {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      if (!next) return prev;
+      return {
+        ...next,
+        updatedAt: Date.now()
+      };
+    });
+  };
 
   useEffect(() => {
     localStorage.setItem(localStorageKey, JSON.stringify(financialData));
@@ -82,7 +94,16 @@ export default function App() {
         if (res.ok) {
           const data = await res.json();
           if (data && !data.warning && (data.incomes || data.expenses || data.investments)) {
-            setFinancialData(data);
+            const localSaved = localStorage.getItem(localStorageKey);
+            const localObj = localSaved ? JSON.parse(localSaved) : null;
+            const localTime = localObj?.updatedAt || 0;
+            const cloudTime = data.updatedAt || 0;
+
+            // Only update local state if the cloud state is strictly newer
+            if (cloudTime > localTime) {
+              setRawFinancialData(data);
+              localStorage.setItem(localStorageKey, JSON.stringify(data));
+            }
           }
         }
       } catch (e) {
