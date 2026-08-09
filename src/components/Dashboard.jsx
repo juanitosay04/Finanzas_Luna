@@ -24,12 +24,12 @@ import {
   Bar, 
   Legend 
 } from 'recharts';
-
 export default function Dashboard({ 
   financialData, 
   simulateBankSync, 
   exportData,
-  onDeleteTransaction
+  onDeleteTransaction,
+  clearData
 }) {
   const { income, expenses, transactions, investments } = financialData;
 
@@ -87,6 +87,12 @@ export default function Dashboard({
             <Download size={16} />
             <span>Descargar Epicrisis (JSON)</span>
           </button>
+          {clearData && (
+            <button className="btn btn-danger" onClick={clearData} style={{ width: 'auto', background: '#d90429', color: '#fff' }}>
+              <Trash2 size={16} />
+              <span>Limpiar Demostración</span>
+            </button>
+          )}
         </div>
       </div>
 

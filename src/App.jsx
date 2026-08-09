@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
 import ExpensesTracker from './components/ExpensesTracker';
@@ -8,41 +8,57 @@ import InvestmentsTracker from './components/InvestmentsTracker';
 export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
 
+  const localStorageKey = 'finances_luna_data';
+
   // Initial State tailored for the nurse, soccer & vallenato fan
-  const [financialData, setFinancialData] = useState({
-    incomes: [
-      { id: 1, description: 'Sueldo Enfermero Clínico Base', amount: 6800000, category: 'Sueldo', date: '2026-08-05' }
-    ],
-    expenses: [
-      { id: 1, description: 'Arriendo Apartamento', amount: 1200000, category: 'Vivienda', date: '2026-08-01' },
-      { id: 2, description: 'Compra de Fonendoscopio Littmann III', amount: 320000, category: 'Otros', date: '2026-08-03' },
-      { id: 3, description: 'Inscripción Torneo Local Fútbol 8', amount: 150000, category: 'Entretenimiento', date: '2026-08-04' },
-      { id: 4, description: 'Servicios Públicos (Luz/Internet)', amount: 350000, category: 'Servicios', date: '2026-08-05' },
-      { id: 5, description: 'Boleta Concierto Silvestre Dangond', amount: 480000, category: 'Entretenimiento', date: '2026-08-06' },
-      { id: 6, description: 'Seguro Responsabilidad Civil Médica', amount: 180000, category: 'Seguros', date: '2026-08-07' },
-      { id: 7, description: 'Ahorro para Fichajes (Fondos)', amount: 600000, category: 'Inversiones', date: '2026-08-07' }
-    ],
-    investments: [
-      { id: 1, name: 'Ecopetrol S.A. (ECO)', type: 'Acciones', shares: 1500, averageCost: 2200, currentPrice: 2450 },
-      { id: 2, name: 'Fondo Renta Fija Colectiva', type: 'Renta Fija', shares: 1, averageCost: 10000000, currentPrice: 10800000 },
-      { id: 3, name: 'Bitcoin (BTC)', type: 'Criptomonedas', shares: 0.05, averageCost: 180000000, currentPrice: 256800000 }
-    ],
-    transactions: [
-      { id: 1, description: 'Ahorro para Fichajes (Fondos)', amount: 600000, category: 'Inversiones', type: 'expense', date: '2026-08-07' },
-      { id: 2, description: 'Seguro Responsabilidad Civil Médica', amount: 180000, category: 'Seguros', type: 'expense', date: '2026-08-07' },
-      { id: 3, description: 'Boleta Concierto Silvestre Dangond', amount: 480000, category: 'Entretenimiento', type: 'expense', date: '2026-08-06' },
-      { id: 4, description: 'Sueldo Enfermero Clínico Base', amount: 6800000, category: 'Sueldo', type: 'income', date: '2026-08-05' },
-      { id: 5, description: 'Servicios Públicos (Luz/Internet)', amount: 350000, category: 'Servicios', type: 'expense', date: '2026-08-05' },
-      { id: 6, description: 'Inscripción Torneo Local Fútbol 8', amount: 150000, category: 'Entretenimiento', type: 'expense', date: '2026-08-04' }
-    ],
-    obligations: [
-      { id: 1, description: 'Arriendo Apartamento', amount: 1200000, category: 'Vivienda', type: 'Gasto Fijo', dueDate: 'Día 05', paid: true },
-      { id: 2, description: 'Seguro Responsabilidad Civil Médica', amount: 180000, category: 'Seguros', type: 'Gasto Fijo', dueDate: 'Día 07', paid: true },
-      { id: 3, description: 'Tarjeta Bancolombia (Camiseta Selección)', amount: 500000, category: 'Tarjetas de Crédito', type: 'Tarjeta de Crédito', dueDate: 'Día 16', paid: false },
-      { id: 4, description: 'Crédito de Moto Yamaha FZ', amount: 750000, category: 'Créditos', type: 'Crédito Vehicular', dueDate: 'Día 20', paid: false },
-      { id: 5, description: 'Servicios Públicos (Luz/Internet)', amount: 350000, category: 'Servicios', type: 'Gasto Fijo', dueDate: 'Día 25', paid: false }
-    ]
+  const [financialData, setFinancialData] = useState(() => {
+    const saved = localStorage.getItem(localStorageKey);
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error("Failed to parse saved financial data", e);
+      }
+    }
+    return {
+      incomes: [
+        { id: 1, description: 'Sueldo Enfermero Clínico Base', amount: 6800000, category: 'Sueldo', date: '2026-08-05' }
+      ],
+      expenses: [
+        { id: 1, description: 'Arriendo Apartamento', amount: 1200000, category: 'Vivienda', date: '2026-08-01' },
+        { id: 2, description: 'Compra de Fonendoscopio Littmann III', amount: 320000, category: 'Otros', date: '2026-08-03' },
+        { id: 3, description: 'Inscripción Torneo Local Fútbol 8', amount: 150000, category: 'Entretenimiento', date: '2026-08-04' },
+        { id: 4, description: 'Servicios Públicos (Luz/Internet)', amount: 350000, category: 'Servicios', date: '2026-08-05' },
+        { id: 5, description: 'Boleta Concierto Silvestre Dangond', amount: 480000, category: 'Entretenimiento', date: '2026-08-06' },
+        { id: 6, description: 'Seguro Responsabilidad Civil Médica', amount: 180000, category: 'Seguros', date: '2026-08-07' },
+        { id: 7, description: 'Ahorro para Fichajes (Fondos)', amount: 600000, category: 'Inversiones', date: '2026-08-07' }
+      ],
+      investments: [
+        { id: 1, name: 'Ecopetrol S.A. (ECO)', type: 'Acciones', shares: 1500, averageCost: 2200, currentPrice: 2450 },
+        { id: 2, name: 'Fondo Renta Fija Colectiva', type: 'Renta Fija', shares: 1, averageCost: 10000000, currentPrice: 10800000 },
+        { id: 3, name: 'Bitcoin (BTC)', type: 'Criptomonedas', shares: 0.05, averageCost: 180000000, currentPrice: 256800000 }
+      ],
+      transactions: [
+        { id: 1, description: 'Ahorro para Fichajes (Fondos)', amount: 600000, category: 'Inversiones', type: 'expense', date: '2026-08-07' },
+        { id: 2, description: 'Seguro Responsabilidad Civil Médica', amount: 180000, category: 'Seguros', type: 'expense', date: '2026-08-07' },
+        { id: 3, description: 'Boleta Concierto Silvestre Dangond', amount: 480000, category: 'Entretenimiento', type: 'expense', date: '2026-08-06' },
+        { id: 4, description: 'Sueldo Enfermero Clínico Base', amount: 6800000, category: 'Sueldo', type: 'income', date: '2026-08-05' },
+        { id: 5, description: 'Servicios Públicos (Luz/Internet)', amount: 350000, category: 'Servicios', type: 'expense', date: '2026-08-05' },
+        { id: 6, description: 'Inscripción Torneo Local Fútbol 8', amount: 150000, category: 'Entretenimiento', type: 'expense', date: '2026-08-04' }
+      ],
+      obligations: [
+        { id: 1, description: 'Arriendo Apartamento', amount: 1200000, category: 'Vivienda', type: 'Gasto Fijo', dueDate: 'Día 05', paid: true },
+        { id: 2, description: 'Seguro Responsabilidad Civil Médica', amount: 180000, category: 'Seguros', type: 'Gasto Fijo', dueDate: 'Día 07', paid: true },
+        { id: 3, description: 'Tarjeta Bancolombia (Camiseta Selección)', amount: 500000, category: 'Tarjetas de Crédito', type: 'Tarjeta de Crédito', dueDate: 'Día 16', paid: false },
+        { id: 4, description: 'Crédito de Moto Yamaha FZ', amount: 750000, category: 'Créditos', type: 'Crédito Vehicular', dueDate: 'Día 20', paid: false },
+        { id: 5, description: 'Servicios Públicos (Luz/Internet)', amount: 350000, category: 'Servicios', type: 'Gasto Fijo', dueDate: 'Día 25', paid: false }
+      ]
+    };
   });
+
+  useEffect(() => {
+    localStorage.setItem(localStorageKey, JSON.stringify(financialData));
+  }, [financialData]);
 
   // Handlers for Incomes
   const handleAddIncome = (newIncome) => {
@@ -321,6 +337,18 @@ export default function App() {
     downloadAnchor.remove();
   };
 
+  const handleClearData = () => {
+    if (window.confirm("¿Estás seguro de que quieres borrar todos los datos de demostración para iniciar en limpio con tus valores reales? Esto vaciará tus registros de enfermero e inversiones actuales.")) {
+      setFinancialData({
+        incomes: [],
+        expenses: [],
+        investments: [],
+        transactions: [],
+        obligations: []
+      });
+    }
+  };
+
   const totalIncome = (financialData.incomes || []).reduce((sum, inc) => sum + inc.amount, 0);
   const financialDataWithTotals = {
     ...financialData,
@@ -342,6 +370,7 @@ export default function App() {
             simulateBankSync={handleSimulateBankSync}
             exportData={handleExportData}
             onDeleteTransaction={handleDeleteTransaction}
+            clearData={handleClearData}
           />
         )}
         
