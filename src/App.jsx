@@ -12,6 +12,69 @@ export default function App() {
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [selectedHistoryPeriod, setSelectedHistoryPeriod] = useState(null);
 
+  // Floating custom toast alert state for Luna
+  const [activeAlert, setActiveAlert] = useState({
+    show: false,
+    message: '',
+    type: 'info'
+  });
+
+  const triggerToastAlert = (message, type) => {
+    setActiveAlert({ show: true, message, type });
+    const timer = setTimeout(() => {
+      setActiveAlert((prev) => ({ ...prev, show: false }));
+    }, 8000);
+    return () => clearTimeout(timer);
+  };
+
+  const getExpenseMessage = (newTotal) => {
+    if (newTotal < 2000000) {
+      const list = [
+        "¡Primer tiempo tranquilo, compadre! La cancha está despejada. ⚽",
+        "Una dosis pequeña de gasto, receta médica bajo control. 🩺",
+        "Un pase corto y seguro. Seguimos con el marcador en verde. 🏃‍♂️",
+        "Dosis controlada. ¡El paciente sigue evolucionando de maravilla! 🏥"
+      ];
+      return list[Math.floor(Math.random() * list.length)];
+    } else if (newTotal >= 2000000 && newTotal < 4000000) {
+      const list = [
+        "Upa, el rival está presionando. ¡Cuidado con el fuera de lugar! 🚩",
+        "Aumentando la dosis de egresos. ¡A monitorear los signos vitales! 📉",
+        "Silvestre Dangond cantaría: '¡La vida tiene sus cositas, pero no te gastes todo, primo!' 🎤",
+        "Atención médica: Gasto intermedio registrado en la ficha. 📋"
+      ];
+      return list[Math.floor(Math.random() * list.length)];
+    } else if (newTotal >= 4000000 && newTotal < 6000000) {
+      const list = [
+        "¡Tarjeta amarilla! 🟨 Los gastos están subiendo como la fiebre.",
+        "¡Señor paciente, respire hondo! Pasamos el límite de contención.",
+        "El arquero se quedó quieto. ¡Ese gasto fue un golazo al presupuesto! 🥅",
+        "Alerta en el terreno de juego. ¡A replegar la defensa del bolsillo! 🛡️"
+      ];
+      return list[Math.floor(Math.random() * list.length)];
+    } else {
+      const list = [
+        "¡Tarjeta roja directa! 🟥 ¡DIOS MÍO, PITA EL FINAL DEL PARTIDO!",
+        "¡Código azul en finanzas! Se nos paró el corazón del presupuesto. ¡Desfibrilador ya! 🚨",
+        "¡Se desbordó el río! Como un vallenato triste, nos quedamos sin fondos. 😢🪗",
+        "¡Gasto excesivo! Presupuesto en cuidados intensivos (UCI). 🏥🚑"
+      ];
+      return list[Math.floor(Math.random() * list.length)];
+    }
+  };
+
+  const getIncomeMessage = () => {
+    const list = [
+      "¡GOOOOOL! ⚽ Entró una prima/sueldo al marcador.",
+      "¡Alta médica! Dinero fresco en el bolsillo para el fin de semana. 💸",
+      "¡Suena el acordeón sabroso! Llegó el pago de la guardia. 🪗",
+      "¡Qué golazo, mi hermano! Aporte directo al patrimonio del club. 🏆",
+      "Ingreso registrado. ¡A celebrar con una fría y buena música! 🍻",
+      "¡Fichaje estrella! El flujo de caja está en su mejor momento físico. 🏃‍♂️✨"
+    ];
+    return list[Math.floor(Math.random() * list.length)];
+  };
+
   const localStorageKey = 'finances_luna_data';
 
   // Initial State tailored for the nurse, soccer & vallenato fan
@@ -187,6 +250,8 @@ export default function App() {
         transactions: [transaction, ...prev.transactions]
       };
     });
+
+    triggerToastAlert(getIncomeMessage(), 'income');
   };
 
   const handleDeleteIncome = (id) => {
@@ -256,6 +321,10 @@ export default function App() {
       expenses: [expenseWithId, ...prev.expenses],
       transactions: [transaction, ...prev.transactions]
     }));
+
+    const currentTotal = financialData.expenses.reduce((sum, exp) => sum + exp.amount, 0);
+    const newTotal = currentTotal + newExpense.amount;
+    triggerToastAlert(getExpenseMessage(newTotal), 'expense');
   };
 
   const handleDeleteExpense = (id) => {
@@ -346,6 +415,12 @@ export default function App() {
         transactions: updatedTransactions
       };
     });
+
+    if (isMarkingPaid) {
+      const currentTotal = financialData.expenses.reduce((sum, exp) => sum + exp.amount, 0);
+      const newTotal = currentTotal + obligation.amount;
+      triggerToastAlert(getExpenseMessage(newTotal), 'expense');
+    }
   };
 
   const handleAddObligation = (newObl) => {
@@ -559,6 +634,21 @@ export default function App() {
     <div className="app-container">
       <div className="aurora-2"></div>
       
+      {/* Floating alert toast notification */}
+      {activeAlert.show && (
+        <div className="toast-container">
+          <div className={`toast-alert ${activeAlert.type}`}>
+            <span className="toast-alert-text">{activeAlert.message}</span>
+            <button 
+              className="toast-alert-close" 
+              onClick={() => setActiveAlert((prev) => ({ ...prev, show: false }))}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Sidebar with themed links */}
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
 
