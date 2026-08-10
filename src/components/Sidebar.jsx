@@ -1,5 +1,4 @@
-import React from 'react';
-import { Activity, Pill, Trophy, Coins, HeartPulse } from 'lucide-react';
+import { Activity, Pill, Trophy, Coins, HeartPulse, History, Settings } from 'lucide-react';
 
 export default function Sidebar({ activeTab, setActiveTab }) {
   const menuItems = [
@@ -7,6 +6,8 @@ export default function Sidebar({ activeTab, setActiveTab }) {
     { id: 'expenses', name: 'Tratamiento (Gastos)', icon: Pill },
     { id: 'projections', name: 'Entrenamiento (Goles)', icon: Trophy },
     { id: 'investments', name: 'Fichajes (Inversiones)', icon: Coins },
+    { id: 'history', name: 'Historial Cierres', icon: History },
+    { id: 'config', name: 'Configuración', icon: Settings },
   ];
 
   return (
