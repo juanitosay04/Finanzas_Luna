@@ -1,9 +1,10 @@
-import { Activity, Pill, Coins, HeartPulse, History, Settings } from 'lucide-react';
+import { Activity, Pill, Target, Coins, HeartPulse, History, Settings } from 'lucide-react';
 
 export default function Sidebar({ activeTab, setActiveTab }) {
   const menuItems = [
     { id: 'dashboard', name: 'Diagnóstico General', icon: Activity },
     { id: 'expenses', name: 'Tratamiento (Gastos)', icon: Pill },
+    { id: 'goals', name: 'Bolsillos (Metas)', icon: Target },
     { id: 'investments', name: 'Fichajes (Inversiones)', icon: Coins },
     { id: 'history', name: 'Historial Cierres', icon: History },
     { id: 'config', name: 'Configuración', icon: Settings },

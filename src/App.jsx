@@ -3,6 +3,7 @@ import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
 import ExpensesTracker from './components/ExpensesTracker';
 import InvestmentsTracker from './components/InvestmentsTracker';
+import SavingsGoals from './components/SavingsGoals';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -81,6 +82,10 @@ export default function App() {
         { id: 4, description: 'Crédito de Moto Yamaha FZ', amount: 750000, category: 'Créditos', type: 'Crédito Vehicular', dueDate: 'Día 20', paid: false },
         { id: 5, description: 'Servicios Públicos (Luz/Internet)', amount: 350000, category: 'Servicios', type: 'Gasto Fijo', dueDate: 'Día 25', paid: false }
       ],
+      savingsGoals: [
+        { id: 1, name: 'Especialización Médica', targetAmount: 12000000, currentAmount: 4000000, targetDate: '2027-06-30' },
+        { id: 2, name: 'Viaje Mundial de Clubes', targetAmount: 8000000, currentAmount: 2500000, targetDate: '2026-12-15' }
+      ],
       config: {
         monthlyBudget: 6800000,
         cycleStartDay: 1
@@ -96,6 +101,10 @@ export default function App() {
         monthlyBudget: 6800000,
         cycleStartDay: 1
       };
+    }
+    // Migrate old data missing savingsGoals field
+    if (!parsedData.savingsGoals) {
+      parsedData.savingsGoals = defaultData.savingsGoals;
     }
     return parsedData;
   });
@@ -318,6 +327,48 @@ export default function App() {
     setFinancialData((prev) => ({
       ...prev,
       investments: prev.investments.filter((inv) => inv.id !== id)
+    }));
+  };
+
+  // Handlers for Savings Goals (Bolsillos)
+  const handleAddSavingsGoal = (newGoal) => {
+    setFinancialData((prev) => ({
+      ...prev,
+      savingsGoals: [
+        { ...newGoal, id: Date.now() },
+        ...(prev.savingsGoals || [])
+      ]
+    }));
+  };
+
+  const handleDeleteSavingsGoal = (id) => {
+    setFinancialData((prev) => ({
+      ...prev,
+      savingsGoals: (prev.savingsGoals || []).filter(g => g.id !== id)
+    }));
+  };
+
+  const handleDepositToSavingsGoal = (id, amount) => {
+    setFinancialData((prev) => ({
+      ...prev,
+      savingsGoals: (prev.savingsGoals || []).map(g => {
+        if (g.id === id) {
+          return { ...g, currentAmount: g.currentAmount + amount };
+        }
+        return g;
+      })
+    }));
+  };
+
+  const handleWithdrawFromSavingsGoal = (id, amount) => {
+    setFinancialData((prev) => ({
+      ...prev,
+      savingsGoals: (prev.savingsGoals || []).map(g => {
+        if (g.id === id) {
+          return { ...g, currentAmount: Math.max(0, g.currentAmount - amount) };
+        }
+        return g;
+      })
     }));
   };
 
@@ -635,6 +686,16 @@ export default function App() {
             onAddObligation={handleAddObligation}
             onDeleteObligation={handleDeleteObligation}
             config={config}
+          />
+        )}
+
+        {activeTab === 'goals' && (
+          <SavingsGoals 
+            savingsGoals={financialData.savingsGoals || []}
+            onAddSavingsGoal={handleAddSavingsGoal}
+            onDeleteSavingsGoal={handleDeleteSavingsGoal}
+            onDepositToSavingsGoal={handleDepositToSavingsGoal}
+            onWithdrawFromSavingsGoal={handleWithdrawFromSavingsGoal}
           />
         )}
 
