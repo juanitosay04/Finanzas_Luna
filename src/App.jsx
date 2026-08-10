@@ -86,6 +86,9 @@ export default function App() {
         { id: 1, name: 'Especialización Médica', targetAmount: 12000000, currentAmount: 4000000, targetDate: '2027-06-30' },
         { id: 2, name: 'Viaje Mundial de Clubes', targetAmount: 8000000, currentAmount: 2500000, targetDate: '2026-12-15' }
       ],
+      creditCards: [
+        { id: 1, name: 'Visa Bancolombia', limit: 8000000, corteDay: 16, pagoDay: 5 }
+      ],
       config: {
         monthlyBudget: 6800000,
         cycleStartDay: 1
@@ -105,6 +108,10 @@ export default function App() {
     // Migrate old data missing savingsGoals field
     if (!parsedData.savingsGoals) {
       parsedData.savingsGoals = defaultData.savingsGoals;
+    }
+    // Migrate old data missing creditCards field
+    if (!parsedData.creditCards) {
+      parsedData.creditCards = defaultData.creditCards;
     }
     return parsedData;
   });
@@ -369,6 +376,24 @@ export default function App() {
         }
         return g;
       })
+    }));
+  };
+
+  // Handlers for Credit Cards
+  const handleAddCreditCard = (newCard) => {
+    setFinancialData((prev) => ({
+      ...prev,
+      creditCards: [
+        { ...newCard, id: Date.now() },
+        ...(prev.creditCards || [])
+      ]
+    }));
+  };
+
+  const handleDeleteCreditCard = (id) => {
+    setFinancialData((prev) => ({
+      ...prev,
+      creditCards: (prev.creditCards || []).filter(c => c.id !== id)
     }));
   };
 
@@ -686,6 +711,9 @@ export default function App() {
             onAddObligation={handleAddObligation}
             onDeleteObligation={handleDeleteObligation}
             config={config}
+            creditCards={financialData.creditCards || []}
+            onAddCreditCard={handleAddCreditCard}
+            onDeleteCreditCard={handleDeleteCreditCard}
           />
         )}
 
